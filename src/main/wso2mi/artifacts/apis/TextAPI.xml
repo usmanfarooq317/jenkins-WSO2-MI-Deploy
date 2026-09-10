@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/textapi" name="TextAPI" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="GET" uri-template="/hello">
+        <inSequence>
+            <payloadFactory media-type="text">
+                <format>Hello, this is a simple text response from WSO2 MI!</format>
+                <args/>
+            </payloadFactory>
+            <property name="messageType" scope="axis2" value="text/plain"/>
+            <respond/>
+        </inSequence>
+    </resource>
+</api>
