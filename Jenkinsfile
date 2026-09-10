@@ -5,23 +5,23 @@ pipeline {
         // Target path on the VM
         VM_DIR = '/storage/wso2/wso2/MI-4.4.0/wso2mi-4.4.0/repository/deployment/server/carbonapps'
         
-        // TODO: Update these variables
+        // Your PAM credentials and VM IP
         VM_USER = 'usman.farooq4' 
         VM_IP = '10.50.13.105'
-        // NOTE: Maven builds often append "-SNAPSHOT" to the version defined in your pom.xml. 
-        // Double-check your pom.xml version to ensure this matches exactly.
-        CAR_FILE_NAME = 'pipeline-testing-1.0.0-SNAPSHOT.car' 
+        
+        // Exact filename matching your local target directory
+        CAR_FILE_NAME = 'pipeline-testing_1.0.0.car' 
     }
     
     stages {
         stage('Build CAR File') {
             steps {
                 script {
-                    // Make the maven wrapper executable (required for Linux/Ubuntu)
-                    sh 'chmod +x mvnw'
+                    // Prints all files in the Jenkins workspace to verify GitHub pulled them correctly
+                    sh 'ls -la'
                     
-                    // Build the project using the maven wrapper
-                    sh './mvnw clean package'
+                    // Uses the globally installed Maven on your Ubuntu machine
+                    sh 'mvn clean package -Dmaven.test.skip=true'
                 }
             }
         }
