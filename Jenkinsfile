@@ -2,17 +2,30 @@ pipeline {
     agent any
     
     environment {
-        // Your exact local and remote paths
-        LOCAL_CAR_PATH = '/home/usman/.wso2-mi/micro-integrator/wso2mi-4.4.0/repository/deployment/server/carbonapps'
+        // Target path on the VM
         VM_DIR = '/storage/wso2/wso2/MI-4.4.0/wso2mi-4.4.0/repository/deployment/server/carbonapps'
         
-        // TODO: Update these three variables
+        // TODO: Update these variables
         VM_USER = 'usman.farooq4' 
         VM_IP = '10.50.13.105'
-        CAR_FILE_NAME = 'pipeline-testing_1.0.0.car' 
+        // NOTE: Maven builds often append "-SNAPSHOT" to the version defined in your pom.xml. 
+        // Double-check your pom.xml version to ensure this matches exactly.
+        CAR_FILE_NAME = 'pipeline-testing-1.0.0-SNAPSHOT.car' 
     }
     
     stages {
+        stage('Build CAR File') {
+            steps {
+                script {
+                    // Make the maven wrapper executable (required for Linux/Ubuntu)
+                    sh 'chmod +x mvnw'
+                    
+                    // Build the project using the maven wrapper
+                    sh './mvnw clean package'
+                }
+            }
+        }
+
         stage('Authenticate PAM') {
             steps {
                 script {
@@ -42,7 +55,8 @@ pipeline {
                     set password $env(PAM_PASS)
                     set otp $env(PAM_OTP)
                     
-                    spawn scp -o StrictHostKeyChecking=no $env(LOCAL_CAR_PATH)/$env(CAR_FILE_NAME) $env(VM_USER)@$env(VM_IP):$env(VM_DIR)/
+                    # SCP grabs the newly built file from the Jenkins 'target' directory
+                    spawn scp -o StrictHostKeyChecking=no target/$env(CAR_FILE_NAME) $env(VM_USER)@$env(VM_IP):$env(VM_DIR)/
                     
                     # Wait for the password prompt and send password
                     expect "*assword:*" 
